@@ -11,7 +11,7 @@ Therefore the data looks slightly different from the original OSM data model, na
 |Attribute (Column) | Description|
 |-----|-----|
 | `updated` | When this version/minor version of the object was created |
-| `valid_until` | When this particular version/nor version was altered, making this version of the object no longer the most recent |
+| `valid_until` | When this particular vernor version was altered, making this version of the object no longer the most recent |
 | `minor_version` | How many times the geometry / child elements of the primary element has been modified | 
 | `version` | The version of this object that corresponds to the version of the OSM element ||
 | `geom` | The geometry of this version of the object (WKT) |
@@ -149,3 +149,28 @@ TBLPROPERTIES (
   'rawDataSize'='60319965569', 
   'totalSize'='18762706803')
 ```
+
+
+
+## Meta Setup
+_Documenting how the workshop environment is set up_
+
+There is an EC2 instance running at [workshop.yetilabs.science](http://workshop.yetilabs.science) that needs jupyterhub started: 
+
+	ssh -i <creds> ec2-user@workshop.yetilabs.science
+	...
+	tmux new-session -s jupyter -d 'sudo jupyterhub'
+	
+Next, usernames of participants must be added and their directories pre-populated with the example notebooks:
+
+The `new-user.sh` script does the following: 
+
+```
+  sudo useradd -G jupyterhub-users $1
+  sudo cp -r aws-hot-workshop/* /home/$1/
+  sudo chown -R $1:jupyterhub-users /home/$1/
+```
+
+Therefore,  `./new-user.sh <user>` makes the user and copies the contents of this repository into the home directory. 
+
+Only after this step is complete should the participant try to log in. Whatever password they enter the first time will be their password for the duration of that account.
