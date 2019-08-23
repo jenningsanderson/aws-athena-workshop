@@ -151,19 +151,20 @@ TBLPROPERTIES (
 ```
 
 
-
 ## Meta Setup
 _Documenting how the workshop environment is set up_
 
-There is an EC2 instance running at [workshop.yetilabs.science](http://workshop.yetilabs.science) that needs jupyterhub started: 
+This workshop relies on an Amazon EC2 instance built from the `Anaconda3 2019.07` instance on the AMI public marketplace. 
+
+It is accessible at [workshop.yetilabs.science](http://workshop.yetilabs.science), and just needs to have jupyterhub started: 
 
 	ssh -i <creds> ec2-user@workshop.yetilabs.science
 	...
 	tmux new-session -s jupyter -d 'sudo jupyterhub'
 	
-Next, usernames of participants must be added and their directories pre-populated with the example notebooks:
-
-The `new-user.sh` script does the following: 
+TODO: having trouble with _user data_ properly starting this
+	
+Next, usernames of participants must be added and their directories pre-populated with the example notebooks with the `new-user.sh` script. It does the following:
 
 ```
   sudo useradd -G jupyterhub-users $1
@@ -171,6 +172,6 @@ The `new-user.sh` script does the following:
   sudo chown -R $1:jupyterhub-users /home/$1/
 ```
 
-Therefore,  `./new-user.sh <user>` makes the user and copies the contents of this repository into the home directory. 
+Therefore,  `./new-user.sh <user>` makes the user and copies the contents of this repository into the home directory while resetting the proper permissions. 
 
-Only after this step is complete should the participant try to log in. Whatever password they enter the first time will be their password for the duration of that account.
+Only after this step is complete should the participant try to log in at [http://workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000). Whatever password they enter the first time will be their password for the duration of that account.
