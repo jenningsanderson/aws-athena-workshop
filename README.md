@@ -1,4 +1,35 @@
-## Description
+# Workshop Description
+
+There are two steps to this OSM data analysis workshop: 
+
+1. Query OSM data using [Amazon Athena](aws.amazon.com/athena)
+2. Loading the results into a [Jupyter Notebook](http://workshop.yetilabs.science) for interactive data analysis.
+
+## Getting Started
+
+#### Part 1: Amazon Athena
+
+1. Visit [aws.amazon.com/athena](https://us-east-2.console.aws.amazon.com/athena/home?force&region=us-east-2#query). You'll need to log in with the following credentials: 
+
+		TODO
+	
+	Double check that the region is set to `us-east-2` (Ohio) because that is where the pre-processed OSM data lives.
+
+2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. 
+
+
+
+#### Part 2: Logging into Jupyter Notebook
+
+1. There is an instance of JupyterHub running on an Amazon EC2 machine located at [workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000) that will allow each workshop participant to run their own analysis environment.
+2. **Tell the workshop organizers what username you would like to use**.
+3. Your username will be created and set with whichever password you enter the first time you log in (the password can be empty). _However, Until the workshop organizer creates the corresponding local account, the notebook server will fail to Spawn_.
+
+4. When you are successfully logged in and the notebook server is running, you should see this in your browser: 
+
+	![Jupyter Notebook Home](assets/home.png) 
+
+5. Click on a notebook to launch.
 
 
 
