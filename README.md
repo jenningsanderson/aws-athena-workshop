@@ -193,7 +193,7 @@ It is accessible at [workshop.yetilabs.science](http://workshop.yetilabs.science
 	...
 	tmux new-session -s jupyter -d 'sudo jupyterhub'
 	
-TODO: having trouble with _user data_ properly starting this
+TODO: having trouble with _user data_ properly starting this process, so it needs to be done manually.
 	
 Next, usernames of participants must be added and their directories pre-populated with the example notebooks with the `new-user.sh` script. It does the following:
 
