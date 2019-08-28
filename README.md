@@ -17,7 +17,51 @@ There are two steps to this OSM data analysis workshop:
 
 2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. 
 
+	1. For spatially bounded queries, [this bounding box tool](https://boundingbox.klokantech.com/) can quickly construct WKT bounding boxes
+	2. Here's an example query to count the number of users to ever work on a HOT task:
 
+		```sql 
+		SELECT count(DISTINCT(uid))
+		FROM changesets
+		WHERE lower(changesets.tags['comment']) LIKE '%hotosm%'
+		```
+		It should return ~ 140,930. That's a lot of people. How many of them have made more than 1 changeset?
+		
+		```sql
+		SELECT count(uid) FROM (
+		  SELECT uid, count(id) AS num_changesets
+		  FROM changesets
+		  WHERE lower(changesets.tags['comment']) LIKE '%hotosm%'
+		  GROUP BY uid
+		) WHERE num_changesets > 1
+		```
+		
+		~ 121,860, implying about 20k users only made 1 changeset. What about just this year?
+
+		```sql
+		SELECT count(distinct(uid))
+		FROM changesets
+		WHERE lower(changesets.tags['comment']) LIKE '%hotosm%'
+			AND changesets.created_at > date '2019-01-01'
+       ```
+       ~ 25,988. Okay, so over 26k mappers have submitted a `hotosm` related changeset comment so far in 2019.
+       
+	3. Now let's explore all of those users... 
+	   
+	   ```sql
+		SELECT
+			changesets.user, min(created_at) AS first_edit, 
+			max(created_at) AS last_edit, 
+			sum(num_changes) AS total_edits
+		FROM 
+			changesets
+		WHERE
+			changesets.tags['comment'] LIKE '%hotosm%' -- hotosm changesets only
+		GROUP BY 
+			changesets.user 
+		```
+		
+		To dive into these results, we'll move over to the Jupyter Notebooks: 
 
 #### Part 2: Logging into Jupyter Notebook
 

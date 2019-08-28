@@ -29,3 +29,17 @@ def load_dataframe_from_s3(link):
     d = pd.read_csv('data/'+query_id+".csv")
     sys.stderr.write("done.  Found {:,} rows".format(len(d)))
     return d
+
+"""
+    This function takes a string from Athena that represents a Map and returns the Python
+    dictionary equivalent
+"""
+def string_to_dict(string):
+    if type(string)==str:
+        arr = string[1:-1].split("=")
+        d = dict()
+        for k, v in zip(arr[:-1], arr[1:]):
+            d[k] = v
+        return d
+    elif type(string)==dict:
+        return string
