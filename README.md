@@ -17,18 +17,32 @@ There are two steps to this OSM data analysis workshop:
 
 		TODO
 	
-	Double check that the region is set to `us-east-2` (Ohio) because that is where the pre-processed OSM data lives.
+	Once logged in, double check that the region is set to `us-east-2` (Ohio) because that is where the pre-processed OSM data lives. Additionally, you want to make sure that your workgroup is set to `hot-aws-workshop`. 
+	
+	![Screenshot of Athena](assets/athena-screenshot.png)
 
-2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. 
+	**If there are no tables, see the [Athena Setup](https://github.com/jenningsanderson/aws-hot-workshop/blob/master/setup.md#athena-setup) instructions to load the tables.**		
 
-	1. Here's an example query to count the number of users to ever work on a HOT task:
+2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. Here are few queries to get you started and familiar with the interface. 
+
+	_Copy the exact queries here and paste them into the query window_.
+
+	1. Count the number of users to ever work on a HOT task:
 
 		```sql 
 		SELECT count(DISTINCT(uid))
 		FROM changesets
 		WHERE lower(changesets.tags['comment']) LIKE '%hotosm%'
 		```
-		It should return ~ 140,930. That's a lot of people. How many of them have made more than 1 changeset?
+		It should return ~ 140,930. That's a lot of people. What about just this year? 
+		
+		```sql
+		SELECT count(distinct(uid))
+		FROM changesets
+		WHERE lower(changesets.tags['comment']) LIKE '%hotosm%'
+			AND changesets.created_at > date '2019-01-01'
+		```
+		This should return ~ 25,988. Wow, 25k mappers working on at least 1 hot task in 2019. What about users who have more than 1 HOT-related changeset? 
 		
 		```sql
 		SELECT count(uid) FROM (
@@ -39,40 +53,53 @@ There are two steps to this OSM data analysis workshop:
 		) WHERE num_changesets > 1
 		```
 		
-		~ 121,860, implying about 20k users only made 1 changeset. What about just this year?
-
-		```sql
-		SELECT count(distinct(uid))
-		FROM changesets
-		WHERE lower(changesets.tags['comment']) LIKE '%hotosm%'
-			AND changesets.created_at > date '2019-01-01'
-       ```
-       ~ 25,988. Okay, so over 26k mappers have submitted a `hotosm` related changeset comment so far in 2019.
+		~ 121,860, implying only 20k users only made 1 changeset.
+		
+		These are simple results in which Athena is only returning single values. Let's dig into the data a bit more...
        
-	2. Now let's explore all of those users... 
+       
+	2. Find all HOT-related changesets, grouped by user with basic per-user statistics.
 	   
 	   ```sql
 		SELECT
-			changesets.user, min(created_at) AS first_edit, 
-			max(created_at) AS last_edit, 
-			sum(num_changes) AS total_edits
+		    changesets.user,
+		    min(created_at) AS first_edit, 
+		    max(created_at) AS last_edit, 
+		    date_diff('day', min(created_at), max(created_at)) AS lifespan,
+		    sum(num_changes) AS total_edits
 		FROM 
-			changesets
+		    changesets
 		WHERE
-			changesets.tags['comment'] LIKE '%hotosm%' -- hotosm changesets only
+		    changesets.tags['comment'] LIKE '%hotosm%' -- hotosm changesets only
 		GROUP BY 
-			changesets.user 
+		    changesets.user 
+		ORDER BY lifespan DESC
 		```
 		
-		To dive into these results, we'll move over to the Jupyter Notebooks: 
+		The results from this query will be a CSV with ~ 140k rows, one per mapper: 
+		
+		![](assets/lifespan-example.png)
+		
+		At the upper-right, there is a link to download the results as a CSV file. To explore these results in more depth, we will load these CSV files into a **Jupyter Notebook**, as described next. For now, `right-click` this link and copy the link address: 
+		
+		![](assets/save-as.png)
+				
+		You may want to paste this link somewhere safe to hold onto it, it should look similar to this: _https://us-east-2.console.aws.amazon.com/athena/query/results/23f6baab-b1c7-40b5-902c-42901f2447df/csv_
 
 #### Part 2: Logging into the Jupyter Notebooks
 
 1. There is an instance of JupyterHub running on an Amazon EC2 machine located at [workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000) that will allow each workshop participant to run their own analysis environment.
 2. **Tell the workshop organizers what username you would like to use**.
-3. Your username will be created and set with whichever password you enter the first time you log in (the password can be empty). _However, Until the workshop organizer creates the corresponding local account, the notebook server will fail to Spawn_.
-
-4. When you are successfully logged in and the notebook server is running, you should see this in your browser: 
+	
+		TODO: This might be different, perhaps pre-made accounts like workshop-1, workshop-2... 
+		For testing, all of the planets exist:
+		
+		username: mars
+		password: mars
+		
+	Or `saturn | saturn`, `venus | venus`, `pluto | pluto`, `neptune | neptune`...
+	
+4. When you are successfully logged in and the notebook server is running, you should see a page that looks like this: 
 
 	![Jupyter Notebook Home](assets/home.png) 
 
@@ -107,202 +134,3 @@ Therefore the data looks slightly different from the original OSM data model, na
 <br>
 <br>
 <hr>
-## Athena Setup
-
-These queries create the **5 required tables**.
-
-#### Creating the relevant tables
-First, ensure that the region is set to `us-east-2 (Ohio)` (where the OSM data lives), then run the following Athena queries.
-
-##### 1. Changesets
-The changesets table is generated from the OSM Amazon Public Dataset: _s3://osm-pds/changesets_. The changeset table is needed for global editing summaries and to connect users to individual objects.
-
-```sql
-CREATE EXTERNAL TABLE `changesets`(
-  `id` bigint, 
-  `tags` map<string,string>, 
-  `created_at` timestamp, 
-  `open` boolean, 
-  `closed_at` timestamp, 
-  `comments_count` bigint, 
-  `min_lat` decimal(9,7), 
-  `max_lat` decimal(9,7), 
-  `min_lon` decimal(10,7), 
-  `max_lon` decimal(10,7), 
-  `num_changes` bigint, 
-  `uid` bigint, 
-  `user` string)
-ROW FORMAT SERDE 
-  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
-STORED AS INPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
-OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
-LOCATION
-  's3://osm-pds/changesets/'
-TBLPROPERTIES (
-  'CrawlerSchemaDeserializerVersion'='1.0', 
-  'CrawlerSchemaSerializerVersion'='1.0', 
-  'UPDATED_BY_CRAWLER'='osm-changesets', 
-  'averageRecordSize'='33', 
-  'classification'='orc', 
-  'compressionType'='none', 
-  'objectCount'='1', 
-  'recordCount'='73447524', 
-  'sizeKey'='2487145556', 
-  'typeOfData'='file')
-```
-
-The next tables are location specific. They include all of the OSM objects (with historical versions) for the listed regions:
-
-##### 2. Nepal
-```sql
-CREATE EXTERNAL TABLE `nepal`(
-  `type` tinyint, 
-  `id` bigint, 
-  `geom` string, 
-  `tags` map<string,string>, 
-  `changeset` bigint, 
-  `updated` timestamp, 
-  `valid_until` timestamp, 
-  `visible` boolean, 
-  `version` int, 
-  `minor_version` int, 
-  `bbox` struct<minx:float,miny:float,maxx:float,maxy:float>)
-ROW FORMAT SERDE 
-  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
-STORED AS INPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
-OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
-LOCATION
-  's3://osm-30k/orc/nepal_wkt'
-TBLPROPERTIES (
-  'numFiles'='5', 
-  'numRows'='8113647', 
-  'presto_query_id'='20190821_230045_00023_ehmbb', 
-  'presto_version'='0.220', 
-  'rawDataSize'='4351815521', 
-  'totalSize'='1318338251')
-```
-
-##### 3. Central America / Caribbean
-```sql
-CREATE EXTERNAL TABLE `central_america`(
-  `type` tinyint, 
-  `id` bigint, 
-  `geom` string, 
-  `tags` map<string,string>, 
-  `changeset` bigint, 
-  `updated` timestamp, 
-  `valid_until` timestamp, 
-  `visible` boolean, 
-  `version` int, 
-  `minor_version` int, 
-  `bbox` struct<minx:float,miny:float,maxx:float,maxy:float>)
-ROW FORMAT SERDE 
-  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
-STORED AS INPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
-OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
-LOCATION
-  's3://osm-30k/orc/central_america'
-TBLPROPERTIES (
-  'numFiles'='5', 
-  'numRows'='19771168', 
-  'presto_query_id'='20190821_224320_00020_ehmbb', 
-  'presto_version'='0.220', 
-  'rawDataSize'='14250587613', 
-  'totalSize'='4170284573')
-```
-
-##### 4. SouthEastern Asia
-```sql
-CREATE EXTERNAL TABLE `southeastern_asia`(
-  `type` tinyint, 
-  `id` bigint, 
-  `geom` string, 
-  `tags` map<string,string>, 
-  `changeset` bigint, 
-  `updated` timestamp, 
-  `valid_until` timestamp, 
-  `visible` boolean, 
-  `version` int, 
-  `minor_version` int, 
-  `bbox` struct<minx:float,miny:float,maxx:float,maxy:float>)
-ROW FORMAT SERDE 
-  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
-STORED AS INPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
-OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
-LOCATION
-  's3://osm-30k/orc/southeastern_asia'
-TBLPROPERTIES (
-  'numFiles'='5', 
-  'numRows'='101543069', 
-  'presto_query_id'='20190821_223448_00019_ehmbb', 
-  'presto_version'='0.220', 
-  'rawDataSize'='53964524217', 
-  'totalSize'='16477421083')
-```
-
-##### 5. Subsaharan Africa
-```sql
-CREATE EXTERNAL TABLE `subsaharan_africa`(
-  `type` tinyint, 
-  `id` bigint, 
-  `geom` string, 
-  `tags` map<string,string>, 
-  `changeset` bigint, 
-  `updated` timestamp, 
-  `valid_until` timestamp, 
-  `visible` boolean, 
-  `version` int, 
-  `minor_version` int, 
-  `bbox` struct<minx:float,miny:float,maxx:float,maxy:float>)
-ROW FORMAT SERDE 
-  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
-STORED AS INPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
-OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
-LOCATION
-  's3://osm-30k/orc/subsaharan_africa'
-TBLPROPERTIES (
-  'numFiles'='5', 
-  'numRows'='108796230', 
-  'presto_query_id'='20190821_222319_00018_ehmbb', 
-  'presto_version'='0.220', 
-  'rawDataSize'='60319965569', 
-  'totalSize'='18762706803')
-```
-
-<br>
-<br>
-<hr>
-## Meta Setup (ec2 host machine)
-_Documenting how the workshop environment is set up_
-
-This workshop relies on an Amazon EC2 instance built from the `Anaconda3 2019.07` instance on the AMI public marketplace. 
-
-It is accessible at [workshop.yetilabs.science](http://workshop.yetilabs.science), and just needs to have jupyterhub started:
-
-	ssh -i <creds> ec2-user@workshop.yetilabs.science
-	...
-	tmux new-session -s jupyter -d 'sudo jupyterhub'
-	
-(This is currently done manually for simplicity)
-	
-**Required**: Usernames of participants must be added and their directories pre-populated with the example notebooks with the `new-user.sh` script. It does the following:
-
-```
-  sudo useradd -G jupyterhub-users $1
-  sudo cp -r aws-hot-workshop/* /home/$1/
-  sudo chown -R $1:jupyterhub-users /home/$1/
-```
-
-Therefore,  `./new-user.sh <user>` makes the user and copies the contents of this repository into the home directory while resetting the proper permissions. 
-
-Only after this step is complete should the participant try to log in at [http://workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000). Whatever password is entered at first login will be that user's password for the duration of the account.
