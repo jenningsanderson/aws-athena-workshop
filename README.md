@@ -80,12 +80,10 @@ There are two steps to this OSM data analysis workshop:
 		
 		![](assets/lifespan-example.png)
 		
-		At the upper-right, there is a link to download the results as a CSV file. To explore these results in more depth, we will load these CSV files into a **Jupyter Notebook**, as described next. For now, `right-click` this link and copy the link address: 
+		At the upper-right, there is a link to download the results as a CSV file. To explore these results in more depth, we will load these CSV files into a **Jupyter Notebook**, as described next. This is done by copying and pasting _this_ link. You can do this with a `right-click`:
 		
 		![](assets/save-as.png)
 				
-		You may want to paste this link somewhere safe to hold onto it, it should look similar to this: _https://us-east-2.console.aws.amazon.com/athena/query/results/23f6baab-b1c7-40b5-902c-42901f2447df/csv_
-
 #### Part 2: Logging into the Jupyter Notebooks
 
 1. There is an instance of JupyterHub running on an Amazon EC2 machine located at [workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000) that will allow each workshop participant to run their own analysis environment.
@@ -103,11 +101,32 @@ There are two steps to this OSM data analysis workshop:
 
 	![Jupyter Notebook Home](assets/home.png) 
 
-5. Click on a notebook to launch.
+5. Click on the `0. Start Here - All Hot Mappers Tutorial.ipynb`, when it starts, you should see this: 
+
+	![Image of running notebook](assets/tutorial-notebook.png)
+
+	Follow the directions in the notebook to load the CSV file from the previous query into the notebook and create a few charts.
+
 
 
 #### Part 3: Other Notebooks
-There are `X` notebooks with sample code that describes the queries used to generate  
+There are `X` numbered notebooks, (numbered for organization, not difficulty). They contain sample queries and the necessary code to analyze the results. Try them out and plug in your own spatial bounds to look at different areas. 
+
+**Remember, when you run a new query in Athena, you need to copy the URL of the CSV file and paste that URL into the notebook to get the results from Athena to Jupyter**:
+
+First, copy the URL from Athena: 
+![Right click link](assets/save-as.png)
+
+Then paste it (with quotes) into the notebook, storing it as a variable like `query`: 
+
+```python
+query = "https://us-east-2.console.aws.amazon.com/athena/query/results/6cab4ea3-8431-4cd6-8f89-8881fa43c8b2/csv"
+```
+Then run run the `load_dataframe_from_s3` function to get the query results into a Pandas Dataframe. 
+
+```python
+df = load_dataframe_from_s3(query)
+```
 
 
 #### Resources 
@@ -131,6 +150,10 @@ Therefore the data looks slightly different from the original OSM data model, na
 | `version` | The version of this object that corresponds to the version of the OSM element ||
 | `geom` | The geometry of this version of the object (WKT) |
 
-<br>
-<br>
 <hr>
+## Acknowledgements
+This workshop, primarily access to the pre-processed OSM full-history record is made possible through the OSMesa utility and the work of Seth Fitzsimmons.
+
+Jennings Anderson is a Postdoctoral Researcher at the University of Colorado Boulder. The preparation and design of this workshop is thereby supported by CU Boulder and the US National Science Foundation Grant IIS-1524806.
+
+Amazon Web Services is providing computational resources, financial support, and planning / organizing the production of this workshop.
