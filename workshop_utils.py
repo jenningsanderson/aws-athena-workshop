@@ -1,4 +1,4 @@
-import urllib, shutil
+import urllib, shutil, os, sys
 import pandas as pd
 
 # Helper functions for queries
@@ -16,9 +16,16 @@ def load_dataframe_from_s3(link):
         query_id = link
     else:
         query_id = link.split('/')[-2]
-
-    with urllib.request.urlopen(base_url + query_id + ".csv") as response, open("data/"+query_id+".csv", 'wb') as out_file:
-        shutil.copyfileobj(response, out_file)
-    print("Query results saved to: \n"+"data/"+query_id+".csv", end="")
     
-    return pd.read_csv('data/'+query_id+".csv")
+    if os.path.isfile("data/"+query_id+".csv"):
+        sys.stderr.write("Found file locally... ")
+    else:
+        sys.stderr.write("Downloading from S3... ")
+        with urllib.request.urlopen(base_url + query_id + ".csv") as response, open("data/"+query_id+".csv", 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+        sys.stderr.write("Query results saved to: \n"+"data/"+query_id+".csv\n")
+    
+    sys.stderr.write("Creating dataframe... ")
+    d = pd.read_csv('data/'+query_id+".csv")
+    sys.stderr.write("done.  Found {:,} rows".format(len(d)))
+    return d
