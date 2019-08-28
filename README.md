@@ -2,8 +2,12 @@
 
 There are two steps to this OSM data analysis workshop: 
 
-1. Query OSM data using [Amazon Athena](aws.amazon.com/athena)
-2. Loading the results into a [Jupyter Notebook](http://workshop.yetilabs.science) for interactive data analysis.
+1. First, we use [Amazon Athena](aws.amazon.com/athena) to query pre-processed OSM historical data.
+	- OSM historical editing data is currently available for `Nepal`, `Southeastern Asia`, `Subsaharan Africa`, and `Central America`
+	- All OSM `changesets` metadata is available
+	- The pre-processed data exists as individual OSM objects with WKT geometries _(not nodes/ways/relations)_
+	- The results of these queries are automatically saved to an Amazon S3 bucket.
+2. Second, we use [Jupyter Notebooks](http://workshop.yetilabs.science) for an interactive analysis environment to download the query results from S3 and analyze/visualize.
 
 ## Getting Started
 
@@ -17,8 +21,7 @@ There are two steps to this OSM data analysis workshop:
 
 2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. 
 
-	1. For spatially bounded queries, [this bounding box tool](https://boundingbox.klokantech.com/) can quickly construct WKT bounding boxes
-	2. Here's an example query to count the number of users to ever work on a HOT task:
+	1. Here's an example query to count the number of users to ever work on a HOT task:
 
 		```sql 
 		SELECT count(DISTINCT(uid))
@@ -46,7 +49,7 @@ There are two steps to this OSM data analysis workshop:
        ```
        ~ 25,988. Okay, so over 26k mappers have submitted a `hotosm` related changeset comment so far in 2019.
        
-	3. Now let's explore all of those users... 
+	2. Now let's explore all of those users... 
 	   
 	   ```sql
 		SELECT
@@ -63,7 +66,7 @@ There are two steps to this OSM data analysis workshop:
 		
 		To dive into these results, we'll move over to the Jupyter Notebooks: 
 
-#### Part 2: Logging into Jupyter Notebook
+#### Part 2: Logging into the Jupyter Notebooks
 
 1. There is an instance of JupyterHub running on an Amazon EC2 machine located at [workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000) that will allow each workshop participant to run their own analysis environment.
 2. **Tell the workshop organizers what username you would like to use**.
@@ -76,8 +79,18 @@ There are two steps to this OSM data analysis workshop:
 5. Click on a notebook to launch.
 
 
+#### Part 3: Other Notebooks
+There are `X` notebooks with sample code that describes the queries used to generate  
 
-### Data
+
+#### Resources 
+
+1. For spatially bounded queries, [this bounding box tool](https://boundingbox.klokantech.com/) can quickly construct WKT bounding boxes. I recommend having this tool open in another tab for quick reference.
+
+
+<hr>
+<br>
+## Data
 
 Our dataset has gone through one step of pre-processing. Using the [OSMesa utility](https://github.com/azavea/osmesa), the raw node/way/relation elements have been converted into single OSM objects with WKT geometries. This conversion also accounts for _minor versions_, the unaccounted versions of ways and relations created by modifying the child object (like squaring a building or fixing a road).
 
@@ -91,18 +104,59 @@ Therefore the data looks slightly different from the original OSM data model, na
 | `version` | The version of this object that corresponds to the version of the OSM element ||
 | `geom` | The geometry of this version of the object (WKT) |
 
+<br>
+<br>
+<hr>
+## Athena Setup
 
-
-### Setup
-
-_Hopefully this can be run ahead of time and workshop participants can log into a specific account/workspace that has all of this already configured?_
-
+These queries create the **5 required tables**.
 
 #### Creating the relevant tables
-First, ensure that the region is set to us-east-2 (Ohio), then run the following Athena queries: 
+First, ensure that the region is set to `us-east-2 (Ohio)` (where the OSM data lives), then run the following Athena queries.
 
-##### 1. Nepal
+##### 1. Changesets
+The changesets table is generated from the OSM Amazon Public Dataset: _s3://osm-pds/changesets_. The changeset table is needed for global editing summaries and to connect users to individual objects.
+
+```sql
+CREATE EXTERNAL TABLE `changesets`(
+  `id` bigint, 
+  `tags` map<string,string>, 
+  `created_at` timestamp, 
+  `open` boolean, 
+  `closed_at` timestamp, 
+  `comments_count` bigint, 
+  `min_lat` decimal(9,7), 
+  `max_lat` decimal(9,7), 
+  `min_lon` decimal(10,7), 
+  `max_lon` decimal(10,7), 
+  `num_changes` bigint, 
+  `uid` bigint, 
+  `user` string)
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
+STORED AS INPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
+OUTPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
+LOCATION
+  's3://osm-pds/changesets/'
+TBLPROPERTIES (
+  'CrawlerSchemaDeserializerVersion'='1.0', 
+  'CrawlerSchemaSerializerVersion'='1.0', 
+  'UPDATED_BY_CRAWLER'='osm-changesets', 
+  'averageRecordSize'='33', 
+  'classification'='orc', 
+  'compressionType'='none', 
+  'objectCount'='1', 
+  'recordCount'='73447524', 
+  'sizeKey'='2487145556', 
+  'typeOfData'='file')
 ```
+
+The next tables are location specific. They include all of the OSM objects (with historical versions) for the listed regions:
+
+##### 2. Nepal
+```sql
 CREATE EXTERNAL TABLE `nepal`(
   `type` tinyint, 
   `id` bigint, 
@@ -132,8 +186,8 @@ TBLPROPERTIES (
   'totalSize'='1318338251')
 ```
 
-##### 2. Central America / Caribbean
-```
+##### 3. Central America / Caribbean
+```sql
 CREATE EXTERNAL TABLE `central_america`(
   `type` tinyint, 
   `id` bigint, 
@@ -163,8 +217,8 @@ TBLPROPERTIES (
   'totalSize'='4170284573')
 ```
 
-##### 3. SouthEastern Asia
-```
+##### 4. SouthEastern Asia
+```sql
 CREATE EXTERNAL TABLE `southeastern_asia`(
   `type` tinyint, 
   `id` bigint, 
@@ -194,8 +248,8 @@ TBLPROPERTIES (
   'totalSize'='16477421083')
 ```
 
-##### 3. Subsaharan Africa
-```
+##### 5. Subsaharan Africa
+```sql
 CREATE EXTERNAL TABLE `subsaharan_africa`(
   `type` tinyint, 
   `id` bigint, 
@@ -225,21 +279,23 @@ TBLPROPERTIES (
   'totalSize'='18762706803')
 ```
 
-
-## Meta Setup
+<br>
+<br>
+<hr>
+## Meta Setup (ec2 host machine)
 _Documenting how the workshop environment is set up_
 
 This workshop relies on an Amazon EC2 instance built from the `Anaconda3 2019.07` instance on the AMI public marketplace. 
 
-It is accessible at [workshop.yetilabs.science](http://workshop.yetilabs.science), and just needs to have jupyterhub started: 
+It is accessible at [workshop.yetilabs.science](http://workshop.yetilabs.science), and just needs to have jupyterhub started:
 
 	ssh -i <creds> ec2-user@workshop.yetilabs.science
 	...
 	tmux new-session -s jupyter -d 'sudo jupyterhub'
 	
-TODO: having trouble with _user data_ properly starting this process, so it needs to be done manually.
+(This is currently done manually for simplicity)
 	
-Next, usernames of participants must be added and their directories pre-populated with the example notebooks with the `new-user.sh` script. It does the following:
+**Required**: Usernames of participants must be added and their directories pre-populated with the example notebooks with the `new-user.sh` script. It does the following:
 
 ```
   sudo useradd -G jupyterhub-users $1
@@ -249,4 +305,4 @@ Next, usernames of participants must be added and their directories pre-populate
 
 Therefore,  `./new-user.sh <user>` makes the user and copies the contents of this repository into the home directory while resetting the proper permissions. 
 
-Only after this step is complete should the participant try to log in at [http://workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000). Whatever password they enter the first time will be their password for the duration of that account.
+Only after this step is complete should the participant try to log in at [http://workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000). Whatever password is entered at first login will be that user's password for the duration of the account.
