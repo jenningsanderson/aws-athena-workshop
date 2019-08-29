@@ -136,6 +136,7 @@ df = load_dataframe_from_s3(query)
 
 <hr>
 <br>
+
 ## Data
 
 Our dataset has gone through one step of pre-processing. Using the [OSMesa utility](https://github.com/azavea/osmesa), the raw node/way/relation elements have been converted into single OSM objects with WKT geometries. This conversion also accounts for _minor versions_, the unaccounted versions of ways and relations created by modifying the child object (like squaring a building or fixing a road).
