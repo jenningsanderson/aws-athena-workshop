@@ -151,6 +151,7 @@ Therefore the data looks slightly different from the original OSM data model, na
 | `geom` | The geometry of this version of the object (WKT) |
 
 <hr>
+
 ## Acknowledgements
 This workshop, primarily access to the pre-processed OSM full-history record is made possible through the OSMesa utility and the work of Seth Fitzsimmons.
 
