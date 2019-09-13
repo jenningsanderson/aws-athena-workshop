@@ -21,7 +21,7 @@ There are two steps to this OSM data analysis workshop:
   You can log in with the following credentials where `[NUMBER]` is any number between 1 and 90: `workshop-1`, `workshop-2`, `workshop-3`, etc.
 
 		username: workshop-[number]
-		password: hotsummit2019
+		password: < see presentation slides> 
 
 1. Once you login, go to the Amazon Athena console: [https://us-east-2.console.aws.amazon.com/athena/home?region=us-east-2#query](https://us-east-2.console.aws.amazon.com/athena/home?region=us-east-2#query). 
 

@@ -1,5 +1,9 @@
 import urllib, shutil, os, sys
 import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Polygon
+import numpy as np
+
 
 # Helper functions for queries
 
@@ -43,3 +47,23 @@ def string_to_dict(string):
         return d
     elif type(string)==dict:
         return string
+    
+def make_grid(length=0.1,width=0.1):
+    xmin,ymin,xmax,ymax = points.total_bounds
+
+    length = 0.1
+    wide = 0.1
+
+    cols = list(np.arange(int(np.floor(xmin)), int(np.ceil(xmax)), wide))
+    rows = list(np.arange(int(np.floor(ymin)), int(np.ceil(ymax)), length))
+    rows.reverse()
+
+    polygons = []
+    ids = []; count=0
+    for x in cols:
+        for y in rows:
+            count = count + 1
+            ids.append(count)
+            polygons.append( Polygon([(x,y), (x+wide, y), (x+wide, y-length), (x, y-length)]) )
+
+    return gpd.GeoDataFrame({'geometry':polygons, 'PolyID':ids})
