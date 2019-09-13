@@ -95,11 +95,16 @@ There are two steps to this OSM data analysis workshop:
 
 1. There is an instance of JupyterHub running on an Amazon EC2 machine located at [workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000) that will allow each workshop participant to run their own analysis environment.
 
-	Similar to Athena, you can log in with the following credentials where `[NUMBER]` is any number between 1 and 90: `workshop-1`, `workshop-2`, `workshop-3`, etc.
+	Similar to Athena, you can log in with the following credentials: 
 
 		username: workshop-[number]
 		
+	where `[NUMBER]` is any number between 1 and 90, examples: `workshop-1`, `workshop-2`, `workshop-57`, etc. 
+	
 	Whatever **password** you enter when you first login will be the new password for this account. I suggest either leaving this blank or using  `hotsummit2019`.
+	
+	![Jupyter login screenshot](assets/jup-login.png)
+	
 
 4. When you are successfully logged in and the notebook server is running, you should see a page that looks like this:
 
