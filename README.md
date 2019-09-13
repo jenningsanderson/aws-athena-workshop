@@ -3,7 +3,8 @@
 There are two steps to this OSM data analysis workshop:
 
 1. First, we use [Amazon Athena](aws.amazon.com/athena) to query pre-processed OSM historical data.
-	- OSM historical editing data is currently available for `Nepal`, `Southeastern Asia`, `Subsaharan Africa`, and `Central America`
+	- OSM historical editing data is currently available for the following areas. Database table names shown here:
+ 	![Available regions ](assets/available_regions.png)
 	- All OSM `changesets` metadata is available
 	- The pre-processed data exists as individual OSM objects with WKT geometries _(not nodes/ways/relations)_
 	- The results of these queries are automatically saved to an Amazon S3 bucket.
