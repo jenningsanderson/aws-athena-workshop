@@ -18,12 +18,12 @@ There are two steps to this OSM data analysis workshop:
   
   [https://hot-aws-workshop.signin.aws.amazon.com/console](https://hot-aws-workshop.signin.aws.amazon.com/console) 
   
-  You can log in with the following credentials where `[NUMBER]` is any number between 1 and 90: `workshop-1`, `workshop-2`, `workshop-3`, etc.
+  Use the following credentials where `[NUMBER]` is any number between 1 and 90: `workshop-1`, `workshop-2`, `workshop-3`, etc.
 
 		username: workshop-[number]
 		password: < see presentation slides> 
 
-1. Once you login, go to the Amazon Athena console: [https://us-east-2.console.aws.amazon.com/athena/home?region=us-east-2#query](https://us-east-2.console.aws.amazon.com/athena/home?region=us-east-2#query). 
+1. Go to the Amazon Athena console: [https://us-east-2.console.aws.amazon.com/athena/home?region=us-east-2#query](https://us-east-2.console.aws.amazon.com/athena/home?region=us-east-2#query). 
 
 	Once logged in, double check that the region is set to `us-east-2` (Ohio) because that is where the pre-processed OSM data lives. _Not required, but if you'd like to change the workgroup, you can choose any of the other workshop groups by clicking on the Workgroup tab. This way you can save queries into a workgroup unique to you._
 
