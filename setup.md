@@ -169,31 +169,3 @@ TBLPROPERTIES (
   'rawDataSize'='60319965569', 
   'totalSize'='18762706803')
 ```
-
-<br>
-<br>
-<hr>
-## Meta Setup (ec2 host machine)
-_Documenting how the workshop environment is set up_
-
-This workshop relies on an Amazon EC2 instance built from the `Anaconda3 2019.07` instance on the AMI public marketplace. 
-
-It is accessible at [workshop.yetilabs.science](http://workshop.yetilabs.science), and just needs to have jupyterhub started:
-
-	ssh -i <creds> ec2-user@workshop.yetilabs.science
-	...
-	tmux new-session -s jupyter -d 'sudo jupyterhub'
-	
-(This is currently done manually for simplicity)
-	
-**Required**: Usernames of participants must be added and their directories pre-populated with the example notebooks with the `new-user.sh` script. It does the following:
-
-```
-  sudo useradd -G jupyterhub-users $1
-  sudo cp -r aws-hot-workshop/* /home/$1/
-  sudo chown -R $1:jupyterhub-users /home/$1/
-```
-
-Therefore,  `./new-user.sh <user>` makes the user and copies the contents of this repository into the home directory while resetting the proper permissions. 
-
-Only after this step is complete should the participant try to log in at [http://workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000). Whatever password is entered at first login will be that user's password for the duration of the account.
