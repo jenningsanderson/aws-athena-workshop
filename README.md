@@ -165,7 +165,7 @@ Therefore the data looks slightly different from the original OSM data model, na
 <hr>
 
 ## Acknowledgements
-This workshop, primarily access to the pre-processed OSM full-history record is made possible through the OSMesa utility and the work of Seth Fitzsimmons.
+This workshop is made possible by pre-processing the full-history editing record of OSM with [OSM2ORC](https://github.com/mojodna/osm2orc) and [OSMesa](https://github.com/azavea/osmesa), and the help of Seth Fitzsimmons.
 
 Jennings Anderson is a Postdoctoral Researcher at the University of Colorado Boulder. The preparation and design of this workshop is thereby supported by CU Boulder and the US National Science Foundation Grant IIS-1524806.
 
