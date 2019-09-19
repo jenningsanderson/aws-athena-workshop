@@ -29,7 +29,7 @@ There are two steps to this OSM data analysis workshop:
 
 	![Screenshot of Athena](assets/athena-screenshot.png)
 
-	**If there are no tables, see the [Athena Setup](https://github.com/jenningsanderson/aws-hot-workshop/blob/master/setup.md#athena-setup) instructions to load the tables.**		
+	**Confirm that you are using the `osm` database. If there are no tables, see the [Athena Setup](https://github.com/jenningsanderson/aws-hot-workshop/blob/master/setup.md#athena-setup) instructions to load the tables.**		
 
 2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. Here are few queries to get you started and familiar with the interface.
 
