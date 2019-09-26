@@ -130,6 +130,9 @@ _For best performance, consider running this notebook server on an Amazon EC2 in
 
 	![Jupyter Notebook Home](assets/home.png)
 
+_Edit the `workshop_utils.py` file to point to the S3 bucket where your queries are stored, as specified in the workspace above. Without this, Jupyter cannot find your query results._
+
+
 5. Click on the `0. Start Here - All Hot Mappers Tutorial.ipynb`, when it starts, you should see this:
 
 	![Image of running notebook](assets/tutorial-notebook.png)
@@ -139,7 +142,7 @@ _For best performance, consider running this notebook server on an Amazon EC2 in
 
 
 ### Part 3: Other Notebooks
-There are `X` numbered notebooks, (numbered for organization, not difficulty). They contain sample queries and the necessary code to analyze the results. Try them out and plug in your own spatial bounds to look at different areas.
+There are 10 numbered notebooks, (numbered for organization, not difficulty). They contain sample queries and the necessary code to analyze the results. Try them out and plug in your own spatial bounds to look at different areas.
 
 #### Athena to Jupyter
 _Remember, when you run a new query in Athena, you need to copy the URL of the CSV file and paste that URL into the notebook to get the results from Athena to Jupyter_
