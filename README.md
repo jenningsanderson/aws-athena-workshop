@@ -1,5 +1,8 @@
 # Workshop Description
 
+_This workshop was designed to be run in-person on a shared EC2 instance with JupyterHub at the [2019 HOT Summit](https://summit2019.hotosm.org/). I have updated the description so that it can run locally, but there may still be configuration details that are confusing. If you'd like to talk more about this, or run a similar workshop, let me know:_
+`jennings . anderson @ colorado.edu`
+
 There are two steps to this OSM data analysis workshop:
 
 1. First, we use [Amazon Athena](aws.amazon.com/athena) to query pre-processed OSM historical data.
