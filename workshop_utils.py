@@ -9,7 +9,7 @@ import numpy as np
 
 """
     This function downloads query results from the publicly accessible S3 bucket
-    and saves them to the /www/ folder as <query id>.csv
+    and saves them to this folder as <query id>.csv
    
     Input: The URL of the data on AWS (from the Athena link)
     Returns: Pandas dataframe with query results 
@@ -21,16 +21,16 @@ def load_dataframe_from_s3(link):
     else:
         query_id = link.split('/')[-2]
     
-    if os.path.isfile("/www/"+query_id+".csv"):
+    if os.path.isfile(query_id+".csv"):
         sys.stderr.write("Found file locally... ")
     else:
         sys.stderr.write("Downloading from S3... ")
-        with urllib.request.urlopen(base_url + query_id + ".csv") as response, open("/www/"+query_id+".csv", 'wb') as out_file:
+        with urllib.request.urlopen(base_url + query_id + ".csv") as response, open(query_id+".csv", 'wb') as out_file:
             shutil.copyfileobj(response, out_file)
-        sys.stderr.write("Query results saved to: \n"+"/www/"+query_id+".csv\n")
+        sys.stderr.write("Query results saved to: \n"+query_id+".csv\n")
     
     sys.stderr.write("Creating dataframe... ")
-    d = pd.read_csv('/www/'+query_id+".csv")
+    d = pd.read_csv(query_id+".csv")
     sys.stderr.write("done.  Found {:,} rows".format(len(d)))
     return d
 

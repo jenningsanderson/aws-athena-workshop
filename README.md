@@ -14,6 +14,8 @@ There are two steps to this OSM data analysis workshop:
 
 ### Part 1: Amazon Athena
 
+<!-- 
+
 1. For this workshop we'll be sharing an AWS account. You can login here: 
   
   [https://hot-aws-workshop.signin.aws.amazon.com/console](https://hot-aws-workshop.signin.aws.amazon.com/console) 
@@ -30,6 +32,17 @@ There are two steps to this OSM data analysis workshop:
 	![Screenshot of Athena](assets/athena-screenshot.png)
 
 	**Confirm that you are using the `osm` database. If there are no tables, see the [Athena Setup](https://github.com/jenningsanderson/aws-hot-workshop/blob/master/setup.md#athena-setup) instructions to load the tables.**		
+	
+-->
+
+Using your [Amazon Web Services](https://aws.amazon.com/) account, log into [Amazon Athena](https://aws.amazon.com/athena).
+
+1. Once logged in, double check that the region is set to `us-east-2` (Ohio) because that is where the pre-processed OSM data lives.
+
+	**You'll need to set up an `osm` database. Use the queries found in the [Athena Setup](https://github.com/jenningsanderson/aws-hot-workshop/blob/master/setup.md#athena-setup) description to load the tables.**
+	
+	![Screenshot of Athena](assets/athena-screenshot.png)	
+	_Check the workgroup and direct output to an S3 bucket of your choosing, one with public read-access in us-east-2 so that you can easily retrieve or share the query results. Buckets outside this region will incur higher inter-region transfer costs._
 
 2. Now you can begin querying the OSM data, see the [Data section](#Data) below for a more detailed description of what is attributes are available. Here are few queries to get you started and familiar with the interface.
 
@@ -78,7 +91,7 @@ There are two steps to this OSM data analysis workshop:
 		FROM
 		    changesets
 		WHERE
-		    changesets.tags['comment'] LIKE '%hotosm%' -- hotosm changesets only
+		    lower(changesets.tags['comment']) LIKE '%hotosm%' -- hotosm changesets only
 		GROUP BY
 		    changesets.user
 		ORDER BY lifespan DESC
@@ -94,6 +107,12 @@ There are two steps to this OSM data analysis workshop:
 
 ### Part 2: Logging into the Jupyter Notebooks
 
+After cloning this repository, run `jupyter notebook` from this directory (or browse to it if running Jupyter elsewhere). If you don't yet have jupyter installed, [click here](https://jupyter.readthedocs.io/en/latest/install.html).
+
+_For best performance, consider running this notebook server on an Amazon EC2 instance in the us-east-2 region._
+
+<!--
+
 1. There is an instance of JupyterHub running on an Amazon EC2 machine located at [workshop.yetilabs.science:8000](http://workshop.yetilabs.science:8000) that will allow each workshop participant to run their own analysis environment.
 
 	Similar to Athena, you can log in with the following credentials: 
@@ -106,8 +125,8 @@ There are two steps to this OSM data analysis workshop:
 	
 	![Jupyter login screenshot](assets/jup-login.png)
 	
-
-4. When you are successfully logged in and the notebook server is running, you should see a page that looks like this:
+-->
+4. When notebook server is running, you should see a page that looks like this:
 
 	![Jupyter Notebook Home](assets/home.png)
 
