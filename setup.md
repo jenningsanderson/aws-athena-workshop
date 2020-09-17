@@ -3,7 +3,7 @@
 These queries create the **5 required tables**.
 
 #### Creating the relevant tables
-First, ensure that the region is set to `us-east-2 (Ohio)` (where the OSM data lives), then run the following Athena queries.
+First, ensure that the region is set to `us-east-1 (N. Virginia)` (where the OSM data lives), then run the following Athena queries.
 
 ##### 1. Changesets
 The changesets table is generated from the OSM Amazon Public Dataset: _s3://osm-pds/changesets_. The changeset table is needed for global editing summaries and to connect users to individual objects.
